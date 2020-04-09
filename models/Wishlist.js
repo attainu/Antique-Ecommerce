@@ -5,10 +5,14 @@ const WishlistSchema= new Schema({
         type: Schema.Types.ObjectId,
         ref: "Users"
     },
-    products: [ { 
-        type: Schema.Types.ObjectId,
-        ref: 'products'
-    } ] 
+    products: [
+        {
+            productId: Schema.Types.ObjectId,
+            title: String,
+            price: Number,
+            image: String
+        }
+    ] 
 })
 
 const Wishlist = model('Wishlist', WishlistSchema)

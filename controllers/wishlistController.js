@@ -25,7 +25,11 @@ module.exports = {
                     throw new Error("product already in wishlist")
                 }
             });
-            wishlist.products.push(productId);
+            wishlist.products.push({ productId: productId, 
+                title: product.title, 
+                price: product.price, 
+                image: product.image 
+            });
             await wishlist.save();
             res.json({ product_added_to_wishlist: true })
         }
