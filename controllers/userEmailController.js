@@ -49,15 +49,15 @@ module.exports = {
         const { email } = req.body;
         try{
           //checking if user entered an email
-          if (!email) return res.status(400).json({ correct_credentials: false });
-          const user = User.findOne({ email: email});
+          if (!email) return res.status(400).json({ correct_credentials: false, message: "enter your email" });
+          const user = await User.findOne({ email: email});
           //check if user entered his email correctly
           if (!user) return res.status(404).json({
             correct_credentials: false,
             message: "incorrect email, check again"
           })
           //generating new confirm token
-          user.generateToken("confirm");
+          await user.generateToken("confirm");
           //sending success response
           res.status(202).json({ 
             confirmation_email_resent: true,

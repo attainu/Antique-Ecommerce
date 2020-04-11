@@ -3,16 +3,16 @@ const { Schema, model } =require('mongoose');
 const ReviewsSchema= new Schema({
     productId: {
         type: Schema.Types.ObjectId,
-        ref: "products"
+        ref: "products"//refering products database
     },
     title: String,
     price: Number,
     image: String,
-    averageRating: {
+    averageRating: {//type decimal
         type: Schema.Types.Decimal128,
         default: 0
     },
-    reviews: [
+    reviews: [//making array of object for reviews
         {
             userId: Schema.Types.ObjectId,
             name: String,

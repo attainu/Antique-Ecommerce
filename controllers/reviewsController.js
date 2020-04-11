@@ -7,21 +7,30 @@ module.exports = {
     async addReview(req,res){
         const userId = req.session.userId;
         const productId = req.query.pr;
-        const rating = Number(req.body.rating.toFixed(1));
+        let rating = req.body.rating;
         const review = req.body.review || "";
 
         try{
+            //checking if user gave productId
+            if(!productId) throw new Error("product id is required");
+            //checking if user has given valid rating
             if (!rating || rating < 1 || rating > 5){
                 return res.status(400).json({ Error: "incorrect rating" })
+            }else{
+                rating = Number(rating.toFixed(1))
             }
+            //checking if user has given valid product id
             const products = await Products.findById(productId);
             if(!products){
                 return res.status(400).json({ Error: "invalid product_id" })
             }
+            //getting the user data of the user
             const user = await Users.findById(userId);
+            //finding all the reviews of the product
             let reviews = await Reviews.findOne({ productId: productId });
             if (!reviews){
-                const averageRating = ((products.rating + rating) / 2).toFixed(1);
+                //if no previous reviews added then add the reviw
+                const averageRating = Number(((products.rating + rating) / 2).toFixed(1));//for 1 decimal place
                 reviews = await Reviews.create({ productId: productId,
                     title: products.title,
                     price: products.price,
@@ -39,6 +48,7 @@ module.exports = {
                 await user.save();
                 await products.save();
             }else {
+                //else updating the previous review by user
                 let alreadyReviewed = false;
                 let totalRating = 0;
                 let totalReviews = 0;
@@ -67,11 +77,24 @@ module.exports = {
                 await reviews.save();
                 products.rating = averageRating;
                 await products.save();
-                res.json({ review_added_successfully: true});
             }
+            //sending success response
+            res.json({ 
+                review_added_successfully: true,
+                productId: products._id,
+                title: products.title,
+                price: products.price,
+                image: products.image,
+                averagerating: products.rating,
+                myRating: rating,
+                myReview: review
+            });
         }
         catch(err){
+            //filtering id error
+            if (err.name === "CastError") return res.status(400).json({Error: "product id entered is incorrect, check again"})
             console.log(err);
+            //sending error response
             res.json({Error: err.message});
         }
     },
@@ -79,10 +102,19 @@ module.exports = {
     async getReviews(req,res){
         const productId = req.query.pr; 
         try{
+            //checking if user gave productId
+            if(!productId) throw new Error("product id is required");
+            //checking if user has given valid product id
+            const products = await Products.findById(productId);
+            if(!products){
+                return res.status(404).json({ Error: "invalid product_id" })
+            }
+            //finding all the reviews of the product and returning error if not found
             const review = await Reviews.findOne({ productId: productId });
             if (!review){
-                res.status(400).json({ Error: "no reviews found for this product" })
+                res.status(404).json({ Error: "no reviews found for this product" })
             }
+            //getting each review of the product and pushing in an array
             const reviews = [];
             review.reviews.forEach(eachreview => {
                 reviews.push({ 
@@ -92,7 +124,9 @@ module.exports = {
                     review: eachreview.review 
                 })
             })
+            //sending success response
             res.json({
+                productId: productId,
                 title: review.title,
                 price: review.price,
                 image: review.image,
@@ -101,7 +135,10 @@ module.exports = {
             });
         }
         catch(err){
+            //filtering id error
+            if (err.name === "CastError") return res.status(400).json({Error: "product id entered is incorrect, check again"})
             console.log(err);
+            //sending error if any
             res.json({Error: err.message});
         }
     },
@@ -110,15 +147,18 @@ module.exports = {
         const userId = req.session.userId;
         try{
             const user = await Users.findById(userId);
+            //searching all reviews by  user and returning error if not found
             if (!user.reviewedProducts){
                 res.status(404).json({ Error: "you didn't gave any reviews yet"});
             }
+            //getting alll the reviews and pushing into array
             const userReviews = [];
             for( eachreview of user.reviewedProducts){
                 const review = await Reviews.findById(eachreview);
                 review.reviews.forEach( object => {
                     if (object.userId == userId){
                         userReviews.push({
+                            productId: review.productId,
                             title: review.title,
                             price: review.price,
                             image: review.image,
@@ -129,10 +169,12 @@ module.exports = {
                     }
                 })
             }
+            //sending success response with info
             res.json(userReviews);
         }
         catch(err){
             console.log(err);
+            //sending error response if any
             res.json({Error: err.message});
         }
     }

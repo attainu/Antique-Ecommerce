@@ -5,16 +5,16 @@ const {
   loginUser,
   registerUser,
   changePassword,
-  deactivateAccount,
+  deleteAccount,
   logout,
   resetPassword
 } = require("../controllers/userController");
 
-// DB routes
-router.post("/login", loginUser);
-router.post("/register", registerUser);
-router.post("/change-password", auth, changePassword);
-router.post("/deactivate", auth, deactivateAccount);
-router.post("/reset-password", resetPassword);
-router.delete("/logout", auth, logout)
+router.post("/login", loginUser);//user login
+router.post("/register", registerUser);//user register
+router.post("/change-password", auth, changePassword);//if user wants to change password
+router.post("/delete-account", auth, deleteAccount);//if user wants to delete account
+router.post("/reset-password", resetPassword);//reset user password if the reset token is confirmed
+router.delete("/logout", auth, logout)//user logout
+
 module.exports = router;

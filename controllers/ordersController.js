@@ -1,6 +1,7 @@
 const Orders = require("../models/Orders");
 const Cart = require("../models/Cart");
 const User = require("../models/User");
+const sendMail = require("../utils/generateOrderEmail");
 
 module.exports = {
 
@@ -41,6 +42,7 @@ module.exports = {
         cart.cartValue = 0;
         cart.numberOfProducts = 0;
         cart.save();
+        await sendMail(user.email,responseObj);
         res.json(responseObj);//sending success response
         }
         catch(err){
@@ -63,7 +65,7 @@ module.exports = {
             //finding orders of user
             const orders = await Orders.findById(user.userOrders);
             const myOrders = [];//assigning empty array variables
-            const myOrderProducts = [];
+            let myOrderProducts = [];
             orders.orders.forEach( order => {
                 order.products.forEach( products => {
                     myOrderProducts.push({//getting products of each order
@@ -82,6 +84,7 @@ module.exports = {
                     orderedOn: order.orderedOn,
                     success: order.success
                 })
+                myOrderProducts = [];
             })
             //sending success response
             res.json(myOrders);

@@ -2,11 +2,11 @@ const { Schema, model } =require('mongoose');
 const OrdersSchema= new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: "Users"
+        ref: "Users"//refering user database
     },
-    orders: [
+    orders: [//making array of object for orders
         {
-            products: [{
+            products: [{//making array of object for products
                 productId: Schema.Types.ObjectId,
                 title: String,
                 price: Number,

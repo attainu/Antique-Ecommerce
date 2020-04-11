@@ -2,7 +2,7 @@ const { getProducts, getSearchProducts } = require("../controllers/productsContr
 const { Router } = require("express");
 const router = Router();
 
-router.get("/products", getProducts);
-router.get("/search-products", getSearchProducts)
+router.get("/products", getProducts);//search products and filtering by category, price, rating, page
+router.get("/search-products", getSearchProducts)//search products by a keyword
 
 module.exports = router;

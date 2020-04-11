@@ -3,9 +3,9 @@ const { Schema, model } =require('mongoose');
 const WishlistSchema= new Schema({
     userId: {
         type: Schema.Types.ObjectId,
-        ref: "Users"
+        ref: "Users"//refering user database
     },
-    products: [
+    products: [//making array of object for products info
         {
             productId: Schema.Types.ObjectId,
             title: String,

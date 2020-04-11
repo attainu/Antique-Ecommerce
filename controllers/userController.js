@@ -5,6 +5,7 @@ const Wishlist = require("../models/Wishlist");
 const { verify } = require("jsonwebtoken");
 const { hash, compare } = require("bcryptjs");
 
+//custom func to find user by email and password
 const findByEmailAndPassword = async (email,password) => {
   try {
     //finding user by email
@@ -21,6 +22,36 @@ const findByEmailAndPassword = async (email,password) => {
   }
 };
 
+//custom func to validate password
+const validPassword = password => {
+  //check if password id of minimum defined length
+  if (password.length < 8 ) throw new Error("Password Minimum length should be 8 characters");
+  //check if password has atleat one digit
+  for( index in password ){
+    if(isNaN(password[index]) && index==(password.length)-1) throw new Error("Password should contain atleast one digit");          
+    if(!isNaN(password[index])) break;
+  }
+  //check if password has atleat one alphabet
+  for( index in password ){
+    if(!isNaN(password[index]) && index==(password.length)-1) throw new Error("Password should contain atleast one alphabet");
+    if(isNaN(password[index])) break;
+  }
+  //check if password has alteast one uppercase
+  for( index in password ){
+    if((password[index]!=(password[index].toUpperCase()) && index==(password.length)-1)
+    || (!isNaN(password[index]) && index==(password.length)-1)) throw new Error("Password should contain atleast one uppercase char");
+    if(!isNaN(password[index])) continue;
+    if(password[index]==(password[index].toUpperCase())) break;
+  }
+  //check if password has alteast one lowercase
+  for( index in password ){
+    if((password[index]!=(password[index].toLowerCase()) && index==(password.length)-1)
+    || (!isNaN(password[index]) && index==(password.length)-1)) throw new Error("Password should contain atleast one lowercase char");
+    if(!isNaN(password[index])) continue;
+    if(password[index]==(password[index].toLowerCase())) break;
+  }
+}
+
 //custom func to generate secret key
 const SecretKey = (email, createdAt) => `${email}-${new Date(createdAt).getTime()}`;
 
@@ -34,35 +65,11 @@ module.exports = {
       if (name.length < 4 ) throw new Error("length of name should be 4 or greater");
       //check if email has @ in it
       for( index in email ){
-        if(email[index]!=='@' && index===(email.length)-1) throw new Error("invalid email, please check again");
+        if(email[index]!=='@' && index==(email.length)-1) throw new Error("invalid email, please check again");
         if(email[index]==='@') break;
       }
-      //check if password id of minimum defined length
-      if (password.length < 8 ) throw new Error("Password Minimum length should be 8 characters");
-      //check if password has atleat one digit
-      for( index in password ){
-        if(isNaN(password[index]) && index==(password.length)-1) throw new Error("Password should contain atleast one digit");          
-        if(!isNaN(password[index])) break;
-      }
-      //check if password has atleat one alphabet
-      for( index in password ){
-        if(!isNaN(password[index]) && index==(password.length)-1) throw new Error("Password should contain atleast one alphabet");
-        if(isNaN(password[index])) break;
-      }
-      //check if password has alteast one uppercase
-      for( index in password ){
-        if((password[index]!=(password[index].toUpperCase()) && index==(password.length)-1)
-        || (!isNaN(password[index]) && index==(password.length)-1)) throw new Error("Password should contain atleast one uppercase char");
-        if(!isNaN(password[index])) continue;
-        if(password[index]==(password[index].toUpperCase())) break;
-      }
-      //check if password has alteast one lowercase
-      for( index in password ){
-        if((password[index]!=(password[index].toLowerCase()) && index==(password.length)-1)
-        || (!isNaN(password[index]) && index==(password.length)-1)) throw new Error("Password should contain atleast one lowercase char");
-        if(!isNaN(password[index])) continue;
-        if(password[index]==(password[index].toLowerCase())) break;
-      }
+      //check valid password by custom func
+      validPassword(password);
       //check if phoneNumber has a length of 10 digits
       if (phoneNumber.toString().length != 10 ) throw new Error("enter a valid phone number");
       //check if phoneNumber has all digits
@@ -87,7 +94,7 @@ module.exports = {
       //filtering token expiration error
       if (err.name === "ValidationError") return res.status(400).json({Validation_Error: err.message});
       //sending error message if other errors
-      console.log(err)
+      console.log(err.message)
       res.status(400).json({Error: err.message});
     }
   },
@@ -130,6 +137,8 @@ module.exports = {
     try {
       //finding user data by email and password through custom function
       const user = await findByEmailAndPassword(email, oldPassword);
+      //check valid new password by custom func
+      validPassword(newPassword);
       //updating new password in database
       user.password = newPassword;
       await user.save();
@@ -141,7 +150,7 @@ module.exports = {
     }
   },
 
-  async deactivateAccount(req, res) {
+  async deleteAccount(req, res) {
     const { email } = req.body;
     const userId = req.session.userId;
     if (!email) return res.status(400).json({ correct_credentials: false });
@@ -200,6 +209,8 @@ module.exports = {
       //verify is reset token is valid
       const payload = await verify(resetToken, secretKey);
       if (payload){
+        //check valid new password by custom func
+        validPassword(password);
         //if valid then hash the entered password
         const hashedPassword = await hash(password, 10);
         //find user by email and update new password

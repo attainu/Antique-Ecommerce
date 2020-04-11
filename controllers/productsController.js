@@ -38,7 +38,7 @@ module.exports = {
             res.json([{products_counts: products.length},products])
         }
         catch(err){
-            console.log(err)
+            console.log(err.message)
             //sending error response if any
             res.json({Error: err.message})
         }
@@ -48,6 +48,7 @@ module.exports = {
         const keyWord = req.query.q;
         
         try{
+            if(!keyWord) throw new Error("keyword to be searched is required");
             //finding all products
             const allproducts = await Products.find();
             //custom func to search in title, category and description
@@ -66,7 +67,7 @@ module.exports = {
             res.json([{products_counts: products.length},products])
         }
         catch(err){
-            console.log(err)
+            console.log(err.message)
             //sending error response if any
             res.json({Error: err.message})
         }

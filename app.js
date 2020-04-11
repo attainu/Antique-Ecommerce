@@ -1,8 +1,6 @@
 const express = require("express");
 const session = require("express-session");
 const dotenv = require("dotenv");
-const fs = require("fs");
-const path = require("path")
 
 dotenv.config();
 require("./db");
