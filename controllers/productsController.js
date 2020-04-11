@@ -6,7 +6,7 @@ module.exports = {
         const queries = { ...req.query }
         try{
             //checking if user has not entered both greater than and smaller than filters
-            if((queries.rating_gt && queries.rating_lt) || (queries.price_gt && queries.price_lt)){
+            if((queries.rating_gte && queries.rating_lte) || (queries.price_gte && queries.price_lte)){
                 res.status(400).json({Bad_request: "cannot filter both greater than and less than at same time"})
             }
             let products = await Products.find();
@@ -15,20 +15,20 @@ module.exports = {
                 products = products.filter(product => product.category == queries.category)
             }
             //filtering products by rating less than
-            if(queries.rating_lt){
-                products = products.filter(product => product.rating <= queries.rating_lt)
+            if(queries.rating_lte){
+                products = products.filter(product => product.rating <= queries.rating_lte)
             }
-            if(queries.rating_gt){
+            if(queries.rating_gte){
                 //filtering products by rating greater than
-                products = products.filter(product => product.rating >= queries.rating_gt)
+                products = products.filter(product => product.rating >= queries.rating_gte)
             }
             //filtering products by price less than
-            if(queries.price_lt){
-                products = products.filter(product => product.price <= queries.price_lt)
+            if(queries.price_lte){
+                products = products.filter(product => product.price <= queries.price_lte)
             }
             //filtering products by price greater than
-            if(queries.price_gt){
-                products = products.filter(product => product.price >= queries.price_gt)
+            if(queries.price_gte){
+                products = products.filter(product => product.price >= queries.price_gte)
             }
             //filtering products by page numbers
             if(queries.page){

@@ -119,7 +119,7 @@ module.exports = {
           //if valid then send success response
           if (payload) {
             return res.json({ valid_token: true, token: resetToken, 
-                message: "post with email and new password as body and token query string 'q' on '/reset-password'"})
+                message: "post with email and new password as body and token header 'token' on '/reset-password'"})
           }
         } catch (err) {
           if (err.name === "TokenExpiredError") {

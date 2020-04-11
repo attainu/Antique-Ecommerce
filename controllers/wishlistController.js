@@ -28,7 +28,7 @@ module.exports = {
             }
             //if already created then checking if that product is already added
             wishlist.products.forEach( product => {
-                if( product == productId ){
+                if( product.productId == productId ){
                     throw new Error("product already in wishlist")
                 }
             });

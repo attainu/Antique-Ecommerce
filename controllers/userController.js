@@ -167,7 +167,7 @@ module.exports = {
       //deleting user data from cart if any
       await Orders.findOneAndDelete({ userId: userId},{useFindAndModify: false})
       //sending success response
-      return res.json({ account_deactivated_successfully: true})
+      return res.json({ account_deleted_successfully: true})
     } catch (err) {
       console.log(err.message);
       //send server error response if any
